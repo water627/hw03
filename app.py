@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageDraw
 
-# 加载 OpenCV 自带的人脸检测器（无额外依赖）
+# 加载 OpenCV 自带的人脸检测器（无 dlib/face_recognition 依赖）
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 
 def detect_faces(image: Image.Image) -> list:
@@ -31,7 +31,7 @@ else:
 st.subheader("📸 原始图片")
 st.image(image, use_column_width=True)
 
-# 检测并画框
+# 检测人脸并画框
 face_locations = detect_faces(image)
 st.subheader(f"✅ 检测到 {len(face_locations)} 张人脸")
 
