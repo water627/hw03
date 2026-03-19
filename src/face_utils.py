@@ -1,40 +1,23 @@
-import face_recognition
+import cv2
 import numpy as np
 from PIL import Image
 
+# 加载 OpenCV 自带的人脸检测器
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
 def detect_faces(image: Image.Image) -> list:
-    """检测图片中的所有人脸位置"""
+    """用 OpenCV 检测人脸，返回 (x,y,w,h) 格式的框"""
     img_np = np.array(image.convert("RGB"))
-    face_locations = face_recognition.face_locations(img_np)
+    gray = cv2.cvtColor(img_np, cv2.COLOR_RGB2GRAY)
+    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+    # 转换成 face_recognition 格式 (top, right, bottom, left)
+    face_locations = [(y, x+w, y+h, x) for (x,y,w,h) in faces]
     return face_locations
 
-def encode_face(image: Image.Image, face_location: tuple = None) -> np.ndarray:
-    """对单张人脸进行128维特征编码"""
-    img_np = np.array(image.convert("RGB"))
-    if face_location:
-        face_encodings = face_recognition.face_encodings(img_np, [face_location])
-    else:
-        face_encodings = face_recognition.face_encodings(img_np)
-    return face_encodings[0] if face_encodings else None
-
-def load_known_faces(known_faces_dir: str = "known_faces") -> tuple:
-    """加载已知人脸库，返回编码和姓名列表"""
-    known_encodings = []
-    known_names = []
-    import os
-    for filename in os.listdir(known_faces_dir):
-        if filename.endswith((".jpg", ".png")):
-            name = os.path.splitext(filename)[0]
-            img = face_recognition.load_image_file(f"{known_faces_dir}/{filename}")
-            encoding = face_recognition.face_encodings(img)[0]
-            known_encodings.append(encoding)
-            known_names.append(name)
-    return known_encodings, known_names
-
-def recognize_face(unknown_encoding: np.ndarray, known_encodings: list, known_names: list) -> str:
-    """比对人脸编码，返回识别结果"""
-    matches = face_recognition.compare_faces(known_encodings, unknown_encoding)
-    name = "Unknown"
+# 暂时注释掉识别相关函数，避免导入 dlib
+# def encode_face(...):
+# def load_known_faces(...):
+# def recognize_face(...):    name = "Unknown"
     if True in matches:
         first_match_index = matches.index(True)
         name = known_names[first_match_index]
