@@ -1,17 +1,14 @@
 import streamlit as st
 from PIL import Image, ImageDraw
-import numpy as np
-from src.face_utils import detect_faces, encode_face, load_known_faces, recognize_face
+from src.face_utils import detect_faces
 
-st.title("🧑‍🤝‍🧑 人脸识别 Web 应用")
+st.title("🧑‍🤝‍🧑 人脸检测 Web 应用")
 st.sidebar.header("操作面板")
 
-# 上传或选择图片
 uploaded_file = st.sidebar.file_uploader("上传图片", type=["jpg", "png", "jpeg"])
 use_sample = st.sidebar.checkbox("使用示例图片", value=False)
 
 if use_sample:
-    # 示例图片（可替换为你自己的示例）
     image = Image.open("https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Barack_Obama.jpg/440px-Barack_Obama.jpg")
 elif uploaded_file:
     image = Image.open(uploaded_file)
@@ -19,22 +16,19 @@ else:
     st.info("请上传图片或选择示例图片开始检测")
     st.stop()
 
-# 显示原始图片
 st.subheader("原始图片")
 st.image(image, use_column_width=True)
 
-# 人脸检测
 st.subheader("人脸检测结果")
 face_locations = detect_faces(image)
 st.write(f"检测到 {len(face_locations)} 张人脸")
 
-# 绘制人脸框
+# 画人脸框
 img_with_boxes = image.copy()
 draw = ImageDraw.Draw(img_with_boxes)
 for (top, right, bottom, left) in face_locations:
     draw.rectangle([(left, top), (right, bottom)], outline="red", width=3)
 st.image(img_with_boxes, use_column_width=True)
-
 # （可选）人脸识别
 if st.sidebar.checkbox("识别人脸（需加载人脸库）"):
     st.subheader("人脸识别结果")
